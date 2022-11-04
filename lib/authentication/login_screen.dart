@@ -1,5 +1,7 @@
-import 'dart:ui';
-
+import 'package:admin_web_portal_seller_amazon_app/functions/functions.dart';
+import 'package:admin_web_portal_seller_amazon_app/homeScreen/home_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -10,6 +12,50 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  String email = "";
+  String password = "";
+
+  allowAdminToLogin() async {
+    if (email.isEmpty && password.isEmpty) {
+      showReusableSnackBar(
+        context,
+        "Pleace provide email & Password.",
+      );
+    } else {
+      //allow admin to login
+      User? currentAdmin;
+      await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      )
+          .then((value) {
+        currentAdmin = value.user;
+      }).catchError((error) {
+        showReusableSnackBar(
+          context,
+          "Error Occured: " + error.toString(),
+        );
+      });
+      //check in firestore database if admin record exists
+      await FirebaseFirestore.instance
+          .collection("admins")
+          .doc(currentAdmin!.uid)
+          .get()
+          .then((snapshot) {
+        if (snapshot.exists) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (c) => HomeScreen()),
+          );
+        } else {
+          showReusableSnackBar(
+              context, "No Record found, you are not an admin.");
+        }
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,7 +70,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   Image.asset("images/admin.png"),
                   TextField(
-                    onChanged: (value) {},
+                    onChanged: (value) {
+                      email = value;
+                    },
                     style: const TextStyle(
                       fontSize: 16,
                       color: Colors.white,
@@ -54,8 +102,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(
                     height: 10,
                   ),
+                  //password field..............................
                   TextField(
-                    onChanged: (value) {},
+                    onChanged: (value) {
+                      password = value;
+                    },
                     obscureText: true,
                     style: const TextStyle(
                       fontSize: 16,
@@ -87,7 +138,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 10,
                   ),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      showReusableSnackBar(
+                        context,
+                        "Checking Credential, Please wait...",
+                      );
+                      allowAdminToLogin();
+                    },
                     style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 100,

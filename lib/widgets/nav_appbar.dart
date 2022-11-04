@@ -1,12 +1,15 @@
+import 'package:admin_web_portal_seller_amazon_app/authentication/login_screen.dart';
 import 'package:admin_web_portal_seller_amazon_app/homeScreen/home_screen.dart';
+import 'package:admin_web_portal_seller_amazon_app/sellers/sellers_pie_chart_screen.dart';
+import 'package:admin_web_portal_seller_amazon_app/users/users_pie_chart_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class NavAppBar extends StatefulWidget with PreferredSizeWidget {
+  String? title;
   PreferredSizeWidget? preferredSizeWidget;
 
-  NavAppBar({
-    this.preferredSizeWidget,
-  });
+  NavAppBar({this.preferredSizeWidget, this.title});
 
   @override
   State<NavAppBar> createState() => _AppBarWithCartBadgeState();
@@ -43,9 +46,9 @@ class _AppBarWithCartBadgeState extends State<NavAppBar> {
             MaterialPageRoute(builder: (c) => HomeScreen()),
           );
         },
-        child: const Text(
-          "iShop",
-          style: TextStyle(
+        child: Text(
+          widget.title.toString(),
+          style: const TextStyle(
             fontSize: 24,
             letterSpacing: 4,
             fontWeight: FontWeight.bold,
@@ -82,7 +85,12 @@ class _AppBarWithCartBadgeState extends State<NavAppBar> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (c) => SellersPieChartScreen()),
+                  );
+                },
                 child: const Text(
                   "Sellers PieChart",
                   style: TextStyle(
@@ -100,7 +108,12 @@ class _AppBarWithCartBadgeState extends State<NavAppBar> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (c) => UsersPieChartScreen()),
+                  );
+                },
                 child: const Text(
                   "Users PieChart",
                   style: TextStyle(
@@ -118,7 +131,13 @@ class _AppBarWithCartBadgeState extends State<NavAppBar> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  FirebaseAuth.instance.signOut();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (c) => LoginScreen()),
+                  );
+                },
                 child: const Text(
                   "Logout",
                   style: TextStyle(
